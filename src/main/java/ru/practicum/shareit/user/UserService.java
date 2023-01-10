@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -43,10 +44,10 @@ public class UserService {
     }
 
     public List<UserDto> getAllUsers() {
-        return userStorage.getAll().stream().map(user -> UserMapper.UserDtoFromUser(user)).toList();
+        return userStorage.getAll().stream().map(user -> UserMapper.UserDtoFromUser(user)).collect(Collectors.toList());
     }
 
     private User getUserFromStorage(long id) {
-        return userStorage.get(id).orElseThrow(() -> new NotFoundException("User with id = %s not found".formatted(id)));
+        return userStorage.get(id).orElseThrow(() -> new NotFoundException(String.format("User with id = %s not found", id)));
     }
 }

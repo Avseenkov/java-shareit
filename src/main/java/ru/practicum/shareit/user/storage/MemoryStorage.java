@@ -47,7 +47,7 @@ public class MemoryStorage implements UserStorage {
     @Override
     public void emailIsExist(String email) {
         if (users.values().stream().anyMatch(user -> user.getEmail().equals(email))) {
-            throw new EmailExistException("%s is already exist".formatted(email));
+            throw new EmailExistException(String.format("%s is already exist", email));
         }
     }
 }

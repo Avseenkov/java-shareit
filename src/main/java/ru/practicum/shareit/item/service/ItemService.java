@@ -13,6 +13,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -52,14 +53,14 @@ public class ItemService {
 
     public List<ItemDto> findItems(String query) {
         if (query.isBlank() || query.isEmpty()) return List.of();
-        return itemStorage.findItems(query).stream().map(ItemMapper::ItemDtoFromItem).toList();
+        return itemStorage.findItems(query).stream().map(ItemMapper::ItemDtoFromItem).collect(Collectors.toList());
     }
 
     public List<ItemDto> getAllItems(long id) {
-        return itemStorage.getAll(id).stream().map(ItemMapper::ItemDtoFromItem).toList();
+        return itemStorage.getAll(id).stream().map(ItemMapper::ItemDtoFromItem).collect(Collectors.toList());
     }
 
     private Item getStorageItem(long itemId) {
-        return itemStorage.get(itemId).orElseThrow(() -> new NotFoundException("Item with id = %s not found".formatted(itemId)));
+        return itemStorage.get(itemId).orElseThrow(() -> new NotFoundException(String.format("Item with id = %s not found", itemId)));
     }
 }

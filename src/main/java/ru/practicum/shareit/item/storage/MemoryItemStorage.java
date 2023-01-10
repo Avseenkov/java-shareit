@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class MemoryItemStorage implements ItemStorage {
@@ -35,7 +36,7 @@ public class MemoryItemStorage implements ItemStorage {
 
     @Override
     public Collection<Item> getAll(long id) {
-        return items.values().stream().filter(item -> item.getOwner().getId() == id).toList();
+        return items.values().stream().filter(item -> item.getOwner().getId() == id).collect(Collectors.toList());
     }
 
     @Override
@@ -51,6 +52,6 @@ public class MemoryItemStorage implements ItemStorage {
                                 && (item.getName().toLowerCase().contains(query.toLowerCase())
                                 || item.getDescription().toLowerCase().contains(query.toLowerCase()))
                 )
-                .toList();
+                .collect(Collectors.toList());
     }
 }
