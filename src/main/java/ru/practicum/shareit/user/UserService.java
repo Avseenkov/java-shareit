@@ -17,11 +17,11 @@ public class UserService {
 
     public UserDto createUser(UserDto user) {
         emailIsExist(user.getEmail());
-        return getUser(userStorage.add(UserMapper.UserFromUserDto(user)));
+        return getUser(userStorage.add(UserMapper.userFromUserDto(user)));
     }
 
     public UserDto getUser(long id) {
-        return UserMapper.UserDtoFromUser(getUserFromStorage(id));
+        return UserMapper.userDtoFromUser(getUserFromStorage(id));
     }
 
     public UserDto updateUser(long id, UserDto userDto) {
@@ -32,7 +32,7 @@ public class UserService {
             user.setEmail(userDto.getEmail());
         }
         userStorage.update(user);
-        return UserMapper.UserDtoFromUser(getUserFromStorage(user.getId()));
+        return UserMapper.userDtoFromUser(getUserFromStorage(user.getId()));
     }
 
     public void deleteUser(long id) {
@@ -44,7 +44,7 @@ public class UserService {
     }
 
     public List<UserDto> getAllUsers() {
-        return userStorage.getAll().stream().map(user -> UserMapper.UserDtoFromUser(user)).collect(Collectors.toList());
+        return userStorage.getAll().stream().map(user -> UserMapper.userDtoFromUser(user)).collect(Collectors.toList());
     }
 
     private User getUserFromStorage(long id) {

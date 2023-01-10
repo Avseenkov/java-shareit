@@ -23,9 +23,9 @@ public class ItemService {
     ItemStorage itemStorage;
 
     public ItemDto createItem(ItemDto itemDto, long userId) {
-        Item item = ItemMapper.ItemFromItemDto(itemDto);
+        Item item = ItemMapper.itemFromItemDto(itemDto);
         UserDto user = userService.getUser(userId);
-        item.setOwner(UserMapper.UserFromUserDto(user));
+        item.setOwner(UserMapper.userFromUserDto(user));
         return getItem(itemStorage.add(item));
     }
 
@@ -43,21 +43,21 @@ public class ItemService {
 
         itemStorage.update(item);
 
-        return ItemMapper.ItemDtoFromItem(item);
+        return ItemMapper.itemDtoFromItem(item);
     }
 
     public ItemDto getItem(long itemId) {
         Item item = getStorageItem(itemId);
-        return ItemMapper.ItemDtoFromItem(item);
+        return ItemMapper.itemDtoFromItem(item);
     }
 
     public List<ItemDto> findItems(String query) {
         if (query.isBlank() || query.isEmpty()) return List.of();
-        return itemStorage.findItems(query).stream().map(ItemMapper::ItemDtoFromItem).collect(Collectors.toList());
+        return itemStorage.findItems(query).stream().map(ItemMapper::itemDtoFromItem).collect(Collectors.toList());
     }
 
     public List<ItemDto> getAllItems(long id) {
-        return itemStorage.getAll(id).stream().map(ItemMapper::ItemDtoFromItem).collect(Collectors.toList());
+        return itemStorage.getAll(id).stream().map(ItemMapper::itemDtoFromItem).collect(Collectors.toList());
     }
 
     private Item getStorageItem(long itemId) {
