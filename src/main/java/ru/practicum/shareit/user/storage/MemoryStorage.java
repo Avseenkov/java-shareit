@@ -24,7 +24,9 @@ public class MemoryStorage implements UserStorage {
 
     @Override
     public long add(User user) {
-        if (user.getId() == null) user.setId(++ids);
+        if (user.getId() == null) {
+            user.setId(++ids);
+        }
         users.put(user.getId(), user);
         return user.getId();
     }
@@ -36,7 +38,7 @@ public class MemoryStorage implements UserStorage {
 
     @Override
     public Optional<User> get(Long id) {
-        return users.containsKey(id) ? Optional.of(users.get(id)) : Optional.empty();
+        return Optional.ofNullable(users.get(id));
     }
 
     @Override

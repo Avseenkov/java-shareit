@@ -41,7 +41,7 @@ public class MemoryItemStorage implements ItemStorage {
 
     @Override
     public Optional<Item> get(Long id) {
-        return items.containsKey(id) ? Optional.of(items.get(id)) : Optional.empty();
+        return Optional.ofNullable(items.get(id));
     }
 
     @Override

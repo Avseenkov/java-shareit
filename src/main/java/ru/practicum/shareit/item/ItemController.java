@@ -25,19 +25,19 @@ public class ItemController {
         return itemService.createItem(itemDto, id);
     }
 
-    @PatchMapping("{itemId}")
+    @PatchMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long id, @PathVariable long itemId, @RequestBody ItemDto itemDto) {
         return itemService.updateItem(itemDto, itemId, id);
     }
 
-    @GetMapping("{itemId}")
+    @GetMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
     public ItemDto getItem(@PathVariable long itemId) {
         return itemService.getItem(itemId);
     }
 
-    @GetMapping("search")
+    @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public List<ItemDto> findItems(@RequestParam String text) {
         return itemService.findItems(text);
