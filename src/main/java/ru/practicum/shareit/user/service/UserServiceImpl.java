@@ -18,8 +18,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto user) {
-        emailIsExist(user.getEmail());
-        return getUser(userStorage.add(UserMapper.userFromUserDto(user)));
+        return getUser(userStorage.save(UserMapper.userFromUserDto(user)).getId());
     }
 
     @Override
@@ -35,13 +34,13 @@ public class UserServiceImpl implements UserService {
             emailIsExist(userDto.getEmail());
             user.setEmail(userDto.getEmail());
         }
-        userStorage.update(user);
+        userStorage.save(user);
         return UserMapper.userDtoFromUser(getUserFromStorage(user.getId()));
     }
 
     @Override
     public void deleteUser(long id) {
-        userStorage.delete(id);
+        userStorage.delete(userStorage.getReferenceById(id));
     }
 
     @Override
@@ -51,10 +50,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUsers() {
-        return userStorage.getAll().stream().map(user -> UserMapper.userDtoFromUser(user)).collect(Collectors.toList());
+        return userStorage.findAll().stream().map(UserMapper::userDtoFromUser).collect(Collectors.toList());
     }
 
     private User getUserFromStorage(long id) {
-        return userStorage.get(id).orElseThrow(() -> new NotFoundException(String.format("User with id = %s not found", id)));
+        return userStorage.findById(id).orElseThrow(() -> new NotFoundException(String.format("User with id = %s not found", id)));
     }
 }

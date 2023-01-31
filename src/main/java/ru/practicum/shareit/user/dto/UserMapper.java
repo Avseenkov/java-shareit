@@ -4,12 +4,12 @@ import ru.practicum.shareit.user.User;
 
 public class UserMapper {
     public static User userFromUserDto(UserDto userDto) {
-        return User
-                .builder()
-                .id(userDto.getId())
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .build();
+        User user = new User();
+        user.setId(userDto.getId());
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+
+        return user;
     }
 
     public static UserDto userDtoFromUser(User user) {
