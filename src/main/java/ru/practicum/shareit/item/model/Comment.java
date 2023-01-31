@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.model;
 
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.user.User;
