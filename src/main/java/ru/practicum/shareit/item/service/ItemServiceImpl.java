@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.storage.BookingStorage;
@@ -19,7 +20,9 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,6 +36,7 @@ public class ItemServiceImpl implements ItemService {
     CommentStorage commentStorage;
 
     @Override
+    @Transactional
     public ItemDto createItem(ItemDto itemDto, long userId) {
         Item item = ItemMapper.itemFromItemDto(itemDto);
         User user = getUserFromStorage(userId);
@@ -41,6 +45,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto updateItem(ItemDto itemDto, long itemId, long userId) {
         Item item = getStorageItem(itemId);
         User owner = item.getOwner();
@@ -63,6 +68,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemDto getItem(long userId, long itemId) {
 
         User user = getUserFromStorage(userId);
@@ -82,6 +88,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> findItems(long userId, String query) {
 
         User user = getUserFromStorage(userId);
@@ -93,13 +100,43 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> getAllItems(long id) {
-        return itemStorage.findAllByOwner_IdOrderById(id).stream().map(ItemMapper::itemDtoFromItem)
-                .map(this::setBookingsToItem)
-                .collect(Collectors.toList());
+        Map<Long, ItemDto> itemsDto = itemStorage.findAllByOwner_IdOrderById(id).stream().map(ItemMapper::itemDtoFromItem)
+                .collect(Collectors.toMap(ItemDto::getId, itemDto -> itemDto));
+
+        List<Booking> bookings = bookingStorage.findByItem_IdInOrderByItem_IdAscStartAsc(
+                itemsDto.values().stream().map(ItemDto::getId).collect(Collectors.toList())
+        );
+
+        LocalDateTime now = LocalDateTime.now();
+
+        bookings.forEach(booking -> {
+            ItemDto itemDto = itemsDto.get(booking.getItem().getId());
+            if (itemDto.getNextBooking() != null) {
+                return;
+            }
+            if (booking.getStart().isBefore(now)) {
+                if (itemDto.getLastBooking() == null) {
+                    itemDto.setLastBooking(BookingMapper.bookingPlainDtoFromBooking(booking));
+                    return;
+                }
+
+                if (itemDto.getLastBooking().getStart().isBefore(booking.getStart())) {
+                    itemDto.setLastBooking(BookingMapper.bookingPlainDtoFromBooking(booking));
+                    return;
+                }
+            }
+
+            itemDto.setNextBooking(BookingMapper.bookingPlainDtoFromBooking(booking));
+
+        });
+
+        return new ArrayList<>(itemsDto.values());
     }
 
     @Override
+    @Transactional
     public CommentDto createComment(long userId, long itemId, CommentDto commentDto) {
         User user = getUserFromStorage(userId);
         Item item = getStorageItem(itemId);
@@ -117,6 +154,7 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.commentDtoFromComment(commentStorage.save(comment));
     }
 
+
     private Item getStorageItem(long itemId) {
         return itemStorage.findById(itemId).orElseThrow(() -> new NotFoundException(String.format("Item with id = %s not found", itemId)));
     }
@@ -125,7 +163,7 @@ public class ItemServiceImpl implements ItemService {
         return userStorage.findById(id).orElseThrow(() -> new NotFoundException(String.format("User with id = %s not found", id)));
     }
 
-    private ItemDto setBookingsToItem(ItemDto itemDto) {
+    private void setBookingsToItem(ItemDto itemDto) {
 
         Optional<Booking> lastBooking = bookingStorage.findFirstByItem_IdAndStartBeforeOrderByStartDesc(itemDto.getId(), LocalDateTime.now());
         Optional<Booking> nextBooking = bookingStorage.findFirstByItem_IdAndStartAfter(itemDto.getId(), LocalDateTime.now());
@@ -133,9 +171,7 @@ public class ItemServiceImpl implements ItemService {
         lastBooking.ifPresent(booking -> itemDto.setLastBooking(BookingMapper.bookingPlainDtoFromBooking(lastBooking.get())));
         nextBooking.ifPresent(booking -> itemDto.setNextBooking(BookingMapper.bookingPlainDtoFromBooking(nextBooking.get())));
 
-        return itemDto;
     }
 }
-
 
 

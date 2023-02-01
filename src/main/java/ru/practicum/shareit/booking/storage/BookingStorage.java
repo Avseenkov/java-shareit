@@ -5,6 +5,7 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.Status;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,5 +36,8 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
     Optional<Booking> findFirstByItem_IdAndStartAfter(Long id, LocalDateTime start);
 
     List<Booking> findByBooker_IdAndItem_IdAndStartBefore(Long id, Long id1, LocalDateTime start);
+
+    List<Booking> findByItem_IdInOrderByItem_IdAscStartAsc(Collection<Long> ids);
+
 
 }

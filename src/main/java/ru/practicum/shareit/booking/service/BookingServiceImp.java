@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -28,6 +29,7 @@ public class BookingServiceImp implements BookingService {
     ItemStorage itemStorage;
 
     @Override
+    @Transactional
     public BookingDto create(BookingPlainDto bookingPlainDto, Long userId) {
         User user = getUserFromStorage(userId);
         Item item = getStorageAvailableItem(bookingPlainDto.getItemId());
@@ -52,6 +54,7 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
+    @Transactional
     public BookingDto setApprove(Long bookingId, Long userId, boolean approve) {
         Status status = approve ? Status.APPROVED : Status.REJECTED;
         Booking booking = getBookingFromStorage(bookingId);
@@ -70,6 +73,7 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingDto getBooking(Long bookingId, Long userId) {
         User user = getUserFromStorage(userId);
         Booking booking = getBookingFromStorage(bookingId);
@@ -80,6 +84,7 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> getBookings(Long userId, String query) {
 
         User user = getUserFromStorage(userId);
@@ -123,6 +128,7 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> getOwnerBookings(Long userId, String query) {
 
         User user = getUserFromStorage(userId);
