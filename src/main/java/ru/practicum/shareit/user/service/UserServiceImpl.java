@@ -7,6 +7,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.exception.EmailExistException;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.List;
@@ -52,7 +53,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public void emailIsExist(String email) {
-        userStorage.emailIsExist(email);
+        userStorage.findByEmailIgnoreCase(email).ifPresent(user -> {
+            throw new EmailExistException(String.format("%s is already exist", email));
+        });
     }
 
     @Override

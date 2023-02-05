@@ -1,9 +1,12 @@
 package ru.practicum.shareit.booking.service;
 
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.QBooking;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -18,7 +21,6 @@ import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -89,42 +91,14 @@ public class BookingServiceImp implements BookingService {
 
         User user = getUserFromStorage(userId);
 
-        switch (query) {
-            case "CURRENT":
-                return bookingStorage.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(user.getId(), LocalDateTime.now(), LocalDateTime.now())
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
+        Iterable<Booking> bookings;
 
-            case "PAST":
-                return bookingStorage.findALLByBookerIdAndEndBeforeOrderByStartDesc(user.getId(), LocalDateTime.now())
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
-            case "FUTURE":
-                return bookingStorage.findAllByBookerIdAndStartAfterOrderByStartDesc(user.getId(), LocalDateTime.now())
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
-            case "WAITING":
-                return bookingStorage.findAllByBookerIdAndStatusOrderByStartDesc(user.getId(), Status.WAITING)
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
-            case "REJECTED":
-                return bookingStorage.findAllByBookerIdAndStatusOrderByStartDesc(user.getId(), Status.REJECTED)
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
-            case "ALL":
-                return bookingStorage.findAllByBookerIdOrderByStartDesc(user.getId())
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
-            default:
-                throw new BadRequestException("Unknown state: " + query);
-        }
+        BooleanExpression byBookerId = QBooking.booking.booker.id.eq(user.getId());
+        OrderSpecifier<LocalDateTime> startDesc = QBooking.booking.start.desc();
 
+        bookings = getBookings(query, byBookerId, startDesc);
+
+        return BookingMapper.mapToBookingDto(bookings);
     }
 
     @Override
@@ -133,40 +107,79 @@ public class BookingServiceImp implements BookingService {
 
         User user = getUserFromStorage(userId);
 
+        Iterable<Booking> bookings;
+
+        BooleanExpression byItemOwnerId = QBooking.booking.item.owner.id.eq(user.getId());
+        OrderSpecifier<LocalDateTime> startDesc = QBooking.booking.start.desc();
+
+        bookings = getBookings(query, byItemOwnerId, startDesc);
+
+        return BookingMapper.mapToBookingDto(bookings);
+    }
+
+    private Iterable<Booking> getBookings(String query, BooleanExpression byUserId, OrderSpecifier<LocalDateTime> sort) {
+        Iterable<Booking> bookings;
         switch (query) {
-            case "CURRENT":
-                return bookingStorage.findByItem_Owner_IdAndStartBeforeAndEndAfterOrderByStartDesc(user.getId(), LocalDateTime.now(), LocalDateTime.now())
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
-            case "PAST":
-                return bookingStorage.findByItem_Owner_IdAndEndBeforeOrderByStartDesc(user.getId(), LocalDateTime.now())
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
-            case "FUTURE":
-                return bookingStorage.findByItem_Owner_IdAndStartAfterOrderByStartDesc(user.getId(), LocalDateTime.now())
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
-            case "WAITING":
-                return bookingStorage.findByItem_Owner_IdAndStatusOrderByStartDesc(user.getId(), Status.WAITING)
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
-            case "REJECTED":
-                return bookingStorage.findByItem_Owner_IdAndStatusOrderByStartDesc(user.getId(), Status.REJECTED)
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
-            case "ALL":
-                return bookingStorage.findByItem_Owner_IdOrderByStartDesc(user.getId())
-                        .stream()
-                        .map(BookingMapper::bookingDtoFromBooking)
-                        .collect(Collectors.toList());
+            case "CURRENT": {
+
+                bookings = bookingStorage.findAll(
+                        byUserId
+                                .and(QBooking.booking.start.before(LocalDateTime.now()))
+                                .and(QBooking.booking.end.after(LocalDateTime.now())),
+                        sort
+                );
+
+                break;
+            }
+            case "PAST": {
+
+                bookings = bookingStorage.findAll(
+                        byUserId
+                                .and(QBooking.booking.end.before(LocalDateTime.now())),
+                        sort
+                );
+                break;
+            }
+
+            case "FUTURE": {
+                bookings = bookingStorage.findAll(
+                        byUserId
+                                .and(QBooking.booking.start.after(LocalDateTime.now())),
+                        sort
+                );
+                break;
+            }
+
+            case "WAITING": {
+
+                bookings = bookingStorage.findAll(
+                        byUserId
+                                .and(QBooking.booking.status.eq(Status.WAITING)),
+                        sort
+                );
+                break;
+            }
+
+            case "REJECTED": {
+                bookings = bookingStorage.findAll(
+                        byUserId
+                                .and(QBooking.booking.status.eq(Status.REJECTED)),
+                        sort
+                );
+                break;
+            }
+
+            case "ALL": {
+                bookings = bookingStorage.findAll(
+                        byUserId,
+                        sort
+                );
+                break;
+            }
             default:
                 throw new BadRequestException("Unknown state: " + query);
         }
+        return bookings;
     }
 
     private User getUserFromStorage(long id) {

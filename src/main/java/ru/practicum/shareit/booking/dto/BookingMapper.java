@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking.dto;
 
 import ru.practicum.shareit.booking.Booking;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BookingMapper {
     public static Booking bookingFromBookingDto(BookingDto bookingDto) {
         Booking booking = new Booking();
@@ -44,6 +47,14 @@ public class BookingMapper {
                 .bookerId(booking.getBooker().getId())
                 .status(booking.getStatus())
                 .build();
+    }
+
+    public static List<BookingDto> mapToBookingDto(Iterable<Booking> bookings) {
+        List<BookingDto> dtos = new ArrayList<>();
+        for (Booking booking : bookings) {
+            dtos.add(bookingDtoFromBooking(booking));
+        }
+        return dtos;
     }
 }
 

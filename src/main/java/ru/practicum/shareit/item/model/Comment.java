@@ -24,6 +24,7 @@ public class Comment {
     @NotBlank
     @NotNull
     @NotEmpty
+    @Column(name = "content")
     private String text;
 
     @ManyToOne
