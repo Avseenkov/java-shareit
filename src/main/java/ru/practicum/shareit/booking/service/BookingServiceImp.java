@@ -26,9 +26,9 @@ import java.util.List;
 @AllArgsConstructor
 public class BookingServiceImp implements BookingService {
 
-    BookingStorage bookingStorage;
-    UserStorage userStorage;
-    ItemStorage itemStorage;
+    private final BookingStorage bookingStorage;
+    private final UserStorage userStorage;
+    private final ItemStorage itemStorage;
 
     @Override
     @Transactional
@@ -91,12 +91,10 @@ public class BookingServiceImp implements BookingService {
 
         User user = getUserFromStorage(userId);
 
-        Iterable<Booking> bookings;
-
         BooleanExpression byBookerId = QBooking.booking.booker.id.eq(user.getId());
         OrderSpecifier<LocalDateTime> startDesc = QBooking.booking.start.desc();
 
-        bookings = getBookings(query, byBookerId, startDesc);
+        Iterable<Booking> bookings = getBookings(query, byBookerId, startDesc);
 
         return BookingMapper.mapToBookingDto(bookings);
     }
@@ -107,12 +105,10 @@ public class BookingServiceImp implements BookingService {
 
         User user = getUserFromStorage(userId);
 
-        Iterable<Booking> bookings;
-
         BooleanExpression byItemOwnerId = QBooking.booking.item.owner.id.eq(user.getId());
         OrderSpecifier<LocalDateTime> startDesc = QBooking.booking.start.desc();
 
-        bookings = getBookings(query, byItemOwnerId, startDesc);
+        Iterable<Booking> bookings = getBookings(query, byItemOwnerId, startDesc);
 
         return BookingMapper.mapToBookingDto(bookings);
     }

@@ -15,7 +15,7 @@ public interface BookingStorage extends JpaRepository<Booking, Long>, QuerydslPr
 
     Optional<Booking> findFirstByItem_IdAndStartAfter(Long id, LocalDateTime start);
 
-    List<Booking> findByBooker_IdAndItem_IdAndStartBefore(Long id, Long id1, LocalDateTime start);
+    List<Booking> findByBooker_IdAndItem_IdAndStartBefore(Long id, Long otherId, LocalDateTime start);
 
     List<Booking> findByItem_IdInOrderByItem_IdAscStartAsc(Collection<Long> ids);
 
