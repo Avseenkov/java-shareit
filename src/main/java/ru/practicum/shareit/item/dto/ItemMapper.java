@@ -5,12 +5,12 @@ import ru.practicum.shareit.item.model.Item;
 public class ItemMapper {
 
     public static Item itemFromItemDto(ItemDto itemDto) {
-        return Item.builder()
-                .id(itemDto.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
-                .build();
+        Item item = new Item();
+        item.setId(itemDto.getId());
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        return item;
     }
 
     public static ItemDto itemDtoFromItem(Item item) {
@@ -21,4 +21,6 @@ public class ItemMapper {
                 .available(item.getAvailable())
                 .build();
     }
+
+
 }
