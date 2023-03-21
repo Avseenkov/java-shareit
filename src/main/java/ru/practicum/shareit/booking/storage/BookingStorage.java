@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookingStorage extends JpaRepository<Booking, Long>, QuerydslPredicateExecutor<Booking> {
+public interface BookingStorage extends JpaRepository<Booking, Long>, QuerydslPredicateExecutor<Booking>, BookingStorageCustom {
 
     Optional<Booking> findFirstByItem_IdAndStartBeforeOrderByStartDesc(Long id, LocalDateTime start);
 

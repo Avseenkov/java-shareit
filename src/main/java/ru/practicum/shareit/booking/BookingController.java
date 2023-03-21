@@ -8,11 +8,9 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingPlainDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.validation.OnCreate;
-import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.ErrorResponse;
 
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -44,25 +42,23 @@ public class BookingController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public List<BookingDto> getAllBookings(@RequestHeader("X-Sharer-User-Id") Long id, @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.getBookings(id, state);
+    public List<BookingDto> getAllBookings(
+            @RequestHeader("X-Sharer-User-Id") Long id,
+            @RequestParam(defaultValue = "0") @Min(0) int from,
+            @RequestParam(defaultValue = "100") @Min(1) int size,
+            @RequestParam(defaultValue = "ALL") String state) {
+        return bookingService.getBookings(id, state, from, size);
     }
 
     @GetMapping("/owner")
     @ResponseStatus(HttpStatus.OK)
-    public List<BookingDto> getAllOwnerBookings(@RequestHeader("X-Sharer-User-Id") Long id, @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.getOwnerBookings(id, state);
+    public List<BookingDto> getAllOwnerBookings(
+            @RequestHeader("X-Sharer-User-Id") Long id,
+            @RequestParam(defaultValue = "0") @Min(0) int from,
+            @RequestParam(defaultValue = "100") @Min(1) int size,
+            @RequestParam(defaultValue = "ALL") String state) {
+        return bookingService.getOwnerBookings(id, state, from, size);
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
-        return new ErrorResponse(e.getMessage());
-    }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleBadRequestException(BadRequestException e) {
-        return new ErrorResponse(e.getMessage());
-    }
 }

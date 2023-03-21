@@ -3,6 +3,9 @@ package ru.practicum.shareit.booking.service;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -33,8 +36,8 @@ public class BookingServiceImp implements BookingService {
     @Override
     @Transactional
     public BookingDto create(BookingPlainDto bookingPlainDto, Long userId) {
-        User user = getUserFromStorage(userId);
-        Item item = getStorageAvailableItem(bookingPlainDto.getItemId());
+        User user = userStorage.getUserFromStorage(userId);
+        Item item = itemStorage.getItemFromStorage(bookingPlainDto.getItemId());
 
         if (user.getId().equals(item.getOwner().getId())) {
             throw new NotFoundException("It is prohibited to create booking for your item");
@@ -59,7 +62,7 @@ public class BookingServiceImp implements BookingService {
     @Transactional
     public BookingDto setApprove(Long bookingId, Long userId, boolean approve) {
         Status status = approve ? Status.APPROVED : Status.REJECTED;
-        Booking booking = getBookingFromStorage(bookingId);
+        Booking booking = bookingStorage.getBookingFromStorage(bookingId);
 
         if (booking.getStatus().equals(status)) {
             throw new BadRequestException(String.format("There is not booking for set %s", status));
@@ -77,8 +80,8 @@ public class BookingServiceImp implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public BookingDto getBooking(Long bookingId, Long userId) {
-        User user = getUserFromStorage(userId);
-        Booking booking = getBookingFromStorage(bookingId);
+        User user = userStorage.getUserFromStorage(userId);
+        Booking booking = bookingStorage.getBookingFromStorage(bookingId);
         if (!user.getId().equals(booking.getBooker().getId()) && !user.getId().equals(booking.getItem().getOwner().getId())) {
             throw new NotFoundException(String.format("User doesn't  have the access to booking with id %s", bookingId));
         }
@@ -87,34 +90,46 @@ public class BookingServiceImp implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingDto> getBookings(Long userId, String query) {
+    public List<BookingDto> getBookings(Long userId, String query, int from, int size) {
 
-        User user = getUserFromStorage(userId);
+        User user = userStorage.getUserFromStorage(userId);
 
         BooleanExpression byBookerId = QBooking.booking.booker.id.eq(user.getId());
         OrderSpecifier<LocalDateTime> startDesc = QBooking.booking.start.desc();
 
-        Iterable<Booking> bookings = getBookings(query, byBookerId, startDesc);
+        int page = from / size;
+
+        Iterable<Booking> bookings = getBookings(query, byBookerId, startDesc, page, size);
 
         return BookingMapper.mapToBookingDto(bookings);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingDto> getOwnerBookings(Long userId, String query) {
+    public List<BookingDto> getOwnerBookings(Long userId, String query, int from, int size) {
 
-        User user = getUserFromStorage(userId);
+        User user = userStorage.getUserFromStorage(userId);
 
         BooleanExpression byItemOwnerId = QBooking.booking.item.owner.id.eq(user.getId());
         OrderSpecifier<LocalDateTime> startDesc = QBooking.booking.start.desc();
 
-        Iterable<Booking> bookings = getBookings(query, byItemOwnerId, startDesc);
+        int page = from / size;
+
+        Iterable<Booking> bookings = getBookings(query, byItemOwnerId, startDesc, page, size);
 
         return BookingMapper.mapToBookingDto(bookings);
     }
 
-    private Iterable<Booking> getBookings(String query, BooleanExpression byUserId, OrderSpecifier<LocalDateTime> sort) {
-        Iterable<Booking> bookings;
+    private Iterable<Booking> getBookings(
+            String query,
+            BooleanExpression byUserId,
+            OrderSpecifier<LocalDateTime> sort,
+            int page,
+            int size
+    ) {
+        Page<Booking> bookings;
+        Sort sortBy = Sort.by(Sort.Direction.DESC, "start");
+        PageRequest pageRequest = PageRequest.of(page, size, sortBy);
         switch (query) {
             case "CURRENT": {
 
@@ -122,7 +137,7 @@ public class BookingServiceImp implements BookingService {
                         byUserId
                                 .and(QBooking.booking.start.before(LocalDateTime.now()))
                                 .and(QBooking.booking.end.after(LocalDateTime.now())),
-                        sort
+                        pageRequest
                 );
 
                 break;
@@ -132,7 +147,7 @@ public class BookingServiceImp implements BookingService {
                 bookings = bookingStorage.findAll(
                         byUserId
                                 .and(QBooking.booking.end.before(LocalDateTime.now())),
-                        sort
+                        pageRequest
                 );
                 break;
             }
@@ -141,7 +156,7 @@ public class BookingServiceImp implements BookingService {
                 bookings = bookingStorage.findAll(
                         byUserId
                                 .and(QBooking.booking.start.after(LocalDateTime.now())),
-                        sort
+                        pageRequest
                 );
                 break;
             }
@@ -151,7 +166,7 @@ public class BookingServiceImp implements BookingService {
                 bookings = bookingStorage.findAll(
                         byUserId
                                 .and(QBooking.booking.status.eq(Status.WAITING)),
-                        sort
+                        pageRequest
                 );
                 break;
             }
@@ -160,7 +175,7 @@ public class BookingServiceImp implements BookingService {
                 bookings = bookingStorage.findAll(
                         byUserId
                                 .and(QBooking.booking.status.eq(Status.REJECTED)),
-                        sort
+                        pageRequest
                 );
                 break;
             }
@@ -168,26 +183,14 @@ public class BookingServiceImp implements BookingService {
             case "ALL": {
                 bookings = bookingStorage.findAll(
                         byUserId,
-                        sort
+                        pageRequest
                 );
                 break;
             }
             default:
                 throw new BadRequestException("Unknown state: " + query);
         }
-        return bookings;
-    }
-
-    private User getUserFromStorage(long id) {
-        return userStorage.findById(id).orElseThrow(() -> new NotFoundException(String.format("User with id = %s not found", id)));
-    }
-
-    private Item getStorageAvailableItem(long itemId) {
-        return itemStorage.findById(itemId).orElseThrow(() -> new NotFoundException(String.format("Item with id = %s not found", itemId)));
-    }
-
-    private Booking getBookingFromStorage(long bookingId) {
-        return bookingStorage.findById(bookingId).orElseThrow(() -> new NotFoundException(String.format("Booking with id = %s not found", bookingId)));
+        return bookings.getContent();
     }
 
 }
