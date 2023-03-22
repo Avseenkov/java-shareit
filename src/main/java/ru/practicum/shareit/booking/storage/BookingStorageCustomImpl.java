@@ -15,6 +15,5 @@ public class BookingStorageCustomImpl implements BookingStorageCustom {
     @Override
     public Booking getBookingFromStorage(long bookingId) {
         return bookingStorage.findById(bookingId).orElseThrow(() -> new NotFoundException(String.format("Booking with id = %s not found", bookingId)));
-
     }
 }
