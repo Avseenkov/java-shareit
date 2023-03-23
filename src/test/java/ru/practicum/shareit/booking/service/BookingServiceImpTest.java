@@ -11,11 +11,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.QBooking;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingPlainDto;
+import ru.practicum.shareit.booking.QBooking;
 import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -28,9 +28,10 @@ import ru.practicum.shareit.user.storage.UserStorage;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImpTest {
@@ -144,6 +145,25 @@ class BookingServiceImpTest {
     }
 
     @Test
+    void createBooking() {
+        Mockito.when(userStorage.getUserFromStorage(Mockito.anyLong()))
+                .thenReturn(booker);
+
+        Mockito.when(itemStorage.getItemFromStorage(Mockito.anyLong()))
+                .thenReturn(item);
+
+        Mockito.when(bookingStorage.save(Mockito.any(Booking.class)))
+                .thenReturn(booking);
+
+        booking.setStatus(Status.WAITING);
+
+        BookingDto bookingDtoDB = bookingService.create(bookingPlainDto, 1L);
+
+        assertThat(bookingDtoDB.getStatus(), equalTo(Status.WAITING));
+        assertThat(bookingDtoDB.getBooker().getName(), equalTo(booker.getName()));
+    }
+
+    @Test
     void setApproveForApprovedItem() {
 
         Mockito.when(bookingStorage.getBookingFromStorage(Mockito.anyLong()))
@@ -158,9 +178,22 @@ class BookingServiceImpTest {
 
         Mockito.when(bookingStorage.getBookingFromStorage(Mockito.anyLong()))
                 .thenReturn(booking);
-
+        booking.setStatus(Status.WAITING);
         booking.getItem().setOwner(booker);
-        assertThrows(BadRequestException.class, () -> bookingService.setApprove(1L, user.getId(), true));
+        assertThrows(NotFoundException.class, () -> bookingService.setApprove(1L, user.getId(), true));
+    }
+
+    @Test
+    void setApprove() {
+        Mockito.when(bookingStorage.getBookingFromStorage(Mockito.anyLong()))
+                .thenReturn(booking);
+        booking.setStatus(Status.WAITING);
+
+        Mockito.when(bookingStorage.save(Mockito.any(Booking.class)))
+                .thenReturn(booking);
+
+        BookingDto bookingDtoDB = bookingService.setApprove(1L, user.getId(), true);
+        assertThat(bookingDto.getStatus(), equalTo(Status.APPROVED));
     }
 
     @Test
@@ -212,4 +245,40 @@ class BookingServiceImpTest {
                 .findAll(byItemOwnerId, PageRequest.of(2, 2, sortBy));
     }
 
+    @Test
+    void getOwnerBookingsWAITING() {
+
+        Mockito.when(userStorage.getUserFromStorage(Mockito.anyLong()))
+                .thenReturn(user);
+
+        Page<Booking> itemsRequestPageable = new PageImpl<>(List.of(booking), PageRequest.of(2, 2), 10);
+
+
+        Mockito.when(bookingStorage.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class))).thenReturn(itemsRequestPageable);
+
+        bookingService.getOwnerBookings(1L, "WAITING", 5, 2);
+
+        BooleanExpression byItemOwnerId = QBooking.booking.item.owner.id.eq(user.getId());
+        Sort sortBy = Sort.by(Sort.Direction.DESC, "start");
+        Mockito.verify(bookingStorage, Mockito.times(1))
+                .findAll(byItemOwnerId.and(QBooking.booking.status.eq(Status.WAITING)), PageRequest.of(2, 2, sortBy));
+    }
+
+    @Test
+    void getOwnerBookingsREJECTED() {
+
+        Mockito.when(userStorage.getUserFromStorage(Mockito.anyLong()))
+                .thenReturn(user);
+
+        Page<Booking> itemsRequestPageable = new PageImpl<>(List.of(booking), PageRequest.of(2, 2), 10);
+
+        Mockito.when(bookingStorage.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class))).thenReturn(itemsRequestPageable);
+
+        bookingService.getOwnerBookings(1L, "REJECTED", 5, 2);
+
+        BooleanExpression byItemOwnerId = QBooking.booking.item.owner.id.eq(user.getId());
+        Sort sortBy = Sort.by(Sort.Direction.DESC, "start");
+        Mockito.verify(bookingStorage, Mockito.times(1))
+                .findAll(byItemOwnerId.and(QBooking.booking.status.eq(Status.REJECTED)), PageRequest.of(2, 2, sortBy));
+    }
 }

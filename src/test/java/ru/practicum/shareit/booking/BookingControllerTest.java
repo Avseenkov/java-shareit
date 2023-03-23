@@ -136,6 +136,20 @@ class BookingControllerTest {
     }
 
     @Test
+    void getAllBookingsWithWrongFrom() throws Exception {
+        Mockito.when(bookingService.getBookings(Mockito.anyLong(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt()))
+                .thenReturn(List.of(bookingDto));
+
+        mvc.perform(get("/bookings")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("from", "-1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void getAllOwnerBookings() throws Exception {
         Mockito.when(bookingService.getOwnerBookings(Mockito.anyLong(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt()))
                 .thenReturn(List.of(bookingDto));
