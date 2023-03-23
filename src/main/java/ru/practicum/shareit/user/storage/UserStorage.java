@@ -6,6 +6,5 @@ import ru.practicum.shareit.user.User;
 import java.util.Optional;
 
 public interface UserStorage extends JpaRepository<User, Long>, UserStorageCustom {
-    Optional<User> findByEmailIgnoreCase(String email);
-
+    Optional<User> findByEmailIgnoreCaseAndIdNot(String email, Long id);
 }

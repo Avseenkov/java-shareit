@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.BadRequestException;
@@ -169,7 +170,11 @@ public class ItemServiceImpl implements ItemService {
     private void setBookingsToItem(ItemDto itemDto) {
 
         Optional<Booking> lastBooking = bookingStorage.findFirstByItem_IdAndStartBeforeOrderByStartDesc(itemDto.getId(), LocalDateTime.now());
-        Optional<Booking> nextBooking = bookingStorage.findFirstByItem_IdAndStartAfter(itemDto.getId(), LocalDateTime.now());
+        Optional<Booking> nextBooking = bookingStorage.findFirstByItem_IdAndStartGreaterThanEqualAndStatusNotOrderByStartAsc(
+                itemDto.getId(),
+                LocalDateTime.now(),
+                Status.REJECTED
+        );
 
         lastBooking.ifPresent(booking -> itemDto.setLastBooking(BookingMapper.bookingPlainDtoFromBooking(lastBooking.get())));
         nextBooking.ifPresent(booking -> itemDto.setNextBooking(BookingMapper.bookingPlainDtoFromBooking(nextBooking.get())));

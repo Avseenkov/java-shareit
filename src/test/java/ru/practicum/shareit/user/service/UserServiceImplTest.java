@@ -99,7 +99,7 @@ class UserServiceImplTest {
                 .thenReturn(newUser);
         Mockito.when(mockUserStorage.save(Mockito.any(User.class)))
                 .thenReturn(newUser);
-        Mockito.when(mockUserStorage.findByEmailIgnoreCase(Mockito.anyString()))
+        Mockito.when(mockUserStorage.findByEmailIgnoreCaseAndIdNot(Mockito.anyString(), Mockito.anyLong()))
                 .thenReturn(Optional.empty());
         UserDto afterUpdate = userService.updateUser(1L, newUserDto);
 
@@ -123,22 +123,22 @@ class UserServiceImplTest {
 
     @Test
     void emailIsExistWithNewEmail() {
-        Mockito.when(mockUserStorage.findByEmailIgnoreCase(Mockito.anyString()))
+        Mockito.when(mockUserStorage.findByEmailIgnoreCaseAndIdNot(Mockito.anyString(), Mockito.anyLong()))
                 .thenReturn(Optional.empty());
 
-        userService.emailIsExist(user.getEmail());
+        userService.emailIsExist(user.getEmail(), user.getId());
 
-        Mockito.verify(mockUserStorage, Mockito.times(1)).findByEmailIgnoreCase(user.getEmail());
+        Mockito.verify(mockUserStorage, Mockito.times(1)).findByEmailIgnoreCaseAndIdNot(user.getEmail(), user.getId());
     }
 
     @Test
     void emailIsExistWithExistEmail() {
-        Mockito.when(mockUserStorage.findByEmailIgnoreCase(Mockito.anyString()))
+        Mockito.when(mockUserStorage.findByEmailIgnoreCaseAndIdNot(Mockito.anyString(), Mockito.anyLong()))
                 .thenReturn(Optional.of(user));
 
-        assertThrows(EmailExistException.class, () -> userService.emailIsExist(user.getEmail()));
+        assertThrows(EmailExistException.class, () -> userService.emailIsExist(user.getEmail(), user.getId()));
 
-        Mockito.verify(mockUserStorage, Mockito.times(1)).findByEmailIgnoreCase(user.getEmail());
+        Mockito.verify(mockUserStorage, Mockito.times(1)).findByEmailIgnoreCaseAndIdNot(user.getEmail(), user.getId());
     }
 
     @Test

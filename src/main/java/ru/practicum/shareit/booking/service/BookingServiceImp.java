@@ -46,9 +46,11 @@ public class BookingServiceImp implements BookingService {
             throw new BadRequestException("Item is not available");
         }
 
-        if (bookingPlainDto.getEnd().isBefore(bookingPlainDto.getStart())) {
+        if (bookingPlainDto.getEnd().isBefore(bookingPlainDto.getStart())
+                || bookingPlainDto.getEnd().equals(bookingPlainDto.getStart())) {
             throw new BadRequestException("End date has to be later than start data");
         }
+
         Booking booking = BookingMapper.bookingFromBookingPlainDto(bookingPlainDto);
         booking.setBooker(user);
         booking.setItem(item);

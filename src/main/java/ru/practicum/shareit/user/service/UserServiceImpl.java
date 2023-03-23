@@ -23,7 +23,6 @@ public class UserServiceImpl implements UserService {
         return getUser(userStorage.save(UserMapper.userFromUserDto(user)).getId());
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public UserDto getUser(long id) {
@@ -36,7 +35,7 @@ public class UserServiceImpl implements UserService {
         User user = userStorage.getUserFromStorage(id);
         if (userDto.getName() != null) user.setName(userDto.getName());
         if (userDto.getEmail() != null) {
-            emailIsExist(userDto.getEmail());
+            emailIsExist(userDto.getEmail(), id);
             user.setEmail(userDto.getEmail());
         }
         User updatedUser = userStorage.save(user);
@@ -51,8 +50,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public void emailIsExist(String email) {
-        userStorage.findByEmailIgnoreCase(email).ifPresent(user -> {
+    public void emailIsExist(String email, Long id) {
+        userStorage.findByEmailIgnoreCaseAndIdNot(email, id).ifPresent(user -> {
             throw new EmailExistException(String.format("%s is already exist", email));
         });
     }
