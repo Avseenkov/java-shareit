@@ -25,14 +25,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest {
 
     @MockBean
-    private UserServiceImpl userService;
+    UserServiceImpl userService;
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
-    private MockMvc mvc;
+    MockMvc mvc;
 
-    private UserDto userDto;
+    UserDto userDto;
 
     @BeforeEach
     void setUp() {

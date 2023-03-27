@@ -25,10 +25,10 @@ import static org.hamcrest.Matchers.notNullValue;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserServiceImpIntegration {
 
-    private final UserServiceImpl userService;
-    private final EntityManager em;
-    private User user;
-    private UserDto userDto;
+    final UserServiceImpl userService;
+    final EntityManager em;
+    User user;
+    UserDto userDto;
     @Autowired
     private UserStorage userStorage;
 

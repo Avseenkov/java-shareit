@@ -89,7 +89,7 @@ public class ItemServiceImpl implements ItemService {
             setBookingsToItem(itemDto);
         }
 
-        List<Comment> comments = (List<Comment>) item.getComments();
+        List<Comment> comments = item.getComments();
 
         itemDto.setComments(comments.stream().map(CommentMapper::commentDtoFromComment).collect(Collectors.toList()));
 

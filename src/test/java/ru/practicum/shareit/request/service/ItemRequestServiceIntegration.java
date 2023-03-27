@@ -28,17 +28,17 @@ import static org.hamcrest.Matchers.equalTo;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ItemRequestServiceIntegration {
 
-    private final ItemRequestServiceImpl itemRequestService;
+    final ItemRequestServiceImpl itemRequestService;
 
-    private User user;
+    User user;
 
-    private ItemRequest itemRequest;
+    ItemRequest itemRequest;
 
-    private ItemRequestDto itemRequestDto;
+    ItemRequestDto itemRequestDto;
 
-    private final EntityManager em;
+    final EntityManager em;
 
-    private Long userId;
+    Long userId;
 
     @BeforeEach
     void setUp() {

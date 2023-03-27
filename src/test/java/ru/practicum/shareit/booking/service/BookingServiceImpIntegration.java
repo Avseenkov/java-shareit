@@ -33,31 +33,31 @@ import static org.hamcrest.Matchers.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BookingServiceImpIntegration {
 
-    private final BookingServiceImp bookingService;
+    final BookingServiceImp bookingService;
 
-    private final EntityManager em;
+    final EntityManager em;
 
-    private User user;
+    User user;
 
-    private User booker;
+    User booker;
 
-    private Item item;
+    Item item;
 
-    private BookingDto bookingDto;
+    BookingDto bookingDto;
 
-    private Booking booking;
+    Booking booking;
 
-    private User userAnother;
+    User userAnother;
 
-    private BookingPlainDto bookingPlainDto;
+    BookingPlainDto bookingPlainDto;
 
-    private Long userId;
+    Long userId;
 
-    private Long bookerId;
+    Long bookerId;
 
-    private Long itemId;
+    Long itemId;
 
-    private BookingStorage bookingStorage;
+    BookingStorage bookingStorage;
 
     @BeforeEach
     void setUp() {

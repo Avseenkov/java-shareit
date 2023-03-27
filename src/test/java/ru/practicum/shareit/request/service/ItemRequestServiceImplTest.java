@@ -28,19 +28,19 @@ import static org.hamcrest.Matchers.equalTo;
 class ItemRequestServiceImplTest {
 
     @InjectMocks
-    private ItemRequestServiceImpl itemRequestService;
+    ItemRequestServiceImpl itemRequestService;
 
     @Mock
-    private UserStorage userStorage;
+    UserStorage userStorage;
 
     @Mock
-    private ItemRequestStorage itemRequestStorage;
+    ItemRequestStorage itemRequestStorage;
 
-    private ItemRequest itemRequest;
+    ItemRequest itemRequest;
 
-    private User user;
+    User user;
 
-    private ItemRequestDto itemRequestDto;
+    ItemRequestDto itemRequestDto;
 
     @BeforeEach
     void setUp() {

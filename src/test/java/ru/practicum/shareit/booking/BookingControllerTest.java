@@ -30,21 +30,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BookingControllerTest {
 
     @MockBean
-    private BookingService bookingService;
+    BookingService bookingService;
 
-    private BookingPlainDto bookingPlainDto;
+    BookingPlainDto bookingPlainDto;
 
-    private BookingDto bookingDto;
+    BookingDto bookingDto;
 
     @Autowired
-    private MockMvc mvc;
+    MockMvc mvc;
 
-    private ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = new ObjectMapper();
+
+    static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     @BeforeEach
     void setUp() {
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(new LocalDateTimeSerializer(dateTimeFormatter));
 

@@ -11,11 +11,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.QBooking;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingPlainDto;
-import ru.practicum.shareit.booking.QBooking;
 import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -37,30 +37,30 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class BookingServiceImpTest {
 
     @InjectMocks
-    private BookingServiceImp bookingService;
+    BookingServiceImp bookingService;
 
     @Mock
-    private UserStorage userStorage;
+    UserStorage userStorage;
 
     @Mock
-    private ItemStorage itemStorage;
+    ItemStorage itemStorage;
 
     @Mock
-    private BookingStorage bookingStorage;
+    BookingStorage bookingStorage;
 
-    private User user;
+    User user;
 
-    private User booker;
+    User booker;
 
-    private Item item;
+    Item item;
 
-    private BookingDto bookingDto;
+    BookingDto bookingDto;
 
-    private Booking booking;
+    Booking booking;
 
-    private User userAnother;
+    User userAnother;
 
-    private BookingPlainDto bookingPlainDto;
+    BookingPlainDto bookingPlainDto;
 
     @BeforeEach
     void setUp() {

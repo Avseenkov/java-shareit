@@ -9,7 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 @Setter
 @Getter
@@ -39,5 +39,5 @@ public class Item {
 
 
     @OneToMany(mappedBy = "item", orphanRemoval = true)
-    private Collection<Comment> comments = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 }

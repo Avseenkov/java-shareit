@@ -5,6 +5,8 @@ import ru.practicum.shareit.request.ItemRequest;
 
 import java.util.stream.Collectors;
 
+
+
 public class ItemRequestMapper {
     public static ItemRequest itemRequestFromItemRequestDto(ItemRequestDto itemRequestDto) {
         ItemRequest itemRequest = new ItemRequest();

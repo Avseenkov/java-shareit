@@ -37,37 +37,37 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ItemServiceImplTest {
 
     @InjectMocks
-    private ItemServiceImpl itemService;
+    ItemServiceImpl itemService;
 
     @Mock
-    private UserStorage mockUserStorage;
+    UserStorage mockUserStorage;
 
     @Mock
-    private ItemStorage mockItemStorage;
+    ItemStorage mockItemStorage;
 
     @Mock
-    private BookingStorage mockBookingStorage;
+    BookingStorage mockBookingStorage;
 
     @Mock
-    private CommentStorage mockCommentStorage;
+    CommentStorage mockCommentStorage;
 
     @Mock
-    private ItemRequestStorage mockItemRequestStorage;
+    ItemRequestStorage mockItemRequestStorage;
 
-    private User user;
+    User user;
 
-    private User booker;
-    private Item item;
+    User booker;
+    Item item;
 
-    private ItemDto itemDto;
+    ItemDto itemDto;
 
-    private Booking lastBooking;
+    Booking lastBooking;
 
-    private Booking nextBooking;
+    Booking nextBooking;
 
-    private CommentDto commentDto;
+    CommentDto commentDto;
 
-    private Comment comment;
+    Comment comment;
 
     @BeforeEach
     void setUp() {

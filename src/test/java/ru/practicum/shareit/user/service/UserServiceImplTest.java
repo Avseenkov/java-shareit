@@ -26,12 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class UserServiceImplTest {
 
     @InjectMocks
-    private UserServiceImpl userService;
+    UserServiceImpl userService;
     @Mock
-    private UserStorage mockUserStorage;
+    UserStorage mockUserStorage;
 
-    private User user;
-    private UserDto userDto;
+    User user;
+    UserDto userDto;
 
     @BeforeEach
     void setUp() {

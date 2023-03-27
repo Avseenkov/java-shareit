@@ -31,13 +31,13 @@ import static org.hamcrest.Matchers.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ItemServiceImpIntegration {
 
-    private final ItemServiceImpl itemService;
-    private final EntityManager em;
-    private User user;
+    final ItemServiceImpl itemService;
+    final EntityManager em;
+    User user;
 
-    private ItemDto itemDto;
+    ItemDto itemDto;
 
-    private Item item;
+    Item item;
 
     @BeforeEach
     void setUp() {
