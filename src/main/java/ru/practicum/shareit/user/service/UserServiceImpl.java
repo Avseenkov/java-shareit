@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -24,24 +23,23 @@ public class UserServiceImpl implements UserService {
         return getUser(userStorage.save(UserMapper.userFromUserDto(user)).getId());
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public UserDto getUser(long id) {
-        return UserMapper.userDtoFromUser(getUserFromStorage(id));
+        return UserMapper.userDtoFromUser(userStorage.getUserFromStorage(id));
     }
 
     @Override
     @Transactional
     public UserDto updateUser(long id, UserDto userDto) {
-        User user = getUserFromStorage(id);
+        User user = userStorage.getUserFromStorage(id);
         if (userDto.getName() != null) user.setName(userDto.getName());
         if (userDto.getEmail() != null) {
-            emailIsExist(userDto.getEmail());
+            emailIsExist(userDto.getEmail(), id);
             user.setEmail(userDto.getEmail());
         }
-        userStorage.save(user);
-        return UserMapper.userDtoFromUser(getUserFromStorage(user.getId()));
+        User updatedUser = userStorage.save(user);
+        return UserMapper.userDtoFromUser(updatedUser);
     }
 
     @Override
@@ -52,8 +50,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public void emailIsExist(String email) {
-        userStorage.findByEmailIgnoreCase(email).ifPresent(user -> {
+    public void emailIsExist(String email, Long id) {
+        userStorage.findByEmailIgnoreCaseAndIdNot(email, id).ifPresent(user -> {
             throw new EmailExistException(String.format("%s is already exist", email));
         });
     }
@@ -64,7 +62,4 @@ public class UserServiceImpl implements UserService {
         return userStorage.findAll().stream().map(UserMapper::userDtoFromUser).collect(Collectors.toList());
     }
 
-    private User getUserFromStorage(long id) {
-        return userStorage.findById(id).orElseThrow(() -> new NotFoundException(String.format("User with id = %s not found", id)));
-    }
 }

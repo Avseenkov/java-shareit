@@ -14,7 +14,7 @@ public interface UserService {
 
     void deleteUser(long id);
 
-    void emailIsExist(String email);
+    void emailIsExist(String email, Long id);
 
     List<UserDto> getAllUsers();
 }

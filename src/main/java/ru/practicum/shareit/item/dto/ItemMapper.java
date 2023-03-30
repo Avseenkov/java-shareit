@@ -14,11 +14,23 @@ public class ItemMapper {
     }
 
     public static ItemDto itemDtoFromItem(Item item) {
-        return ItemDto.builder()
+        ItemDto itemDto = new ItemDto();
+        itemDto.setId(item.getId());
+        itemDto.setName(item.getName());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setAvailable(item.getAvailable());
+        itemDto.setRequestId(item.getRequest() == null ? null : item.getRequest().getId());
+
+        return itemDto;
+    }
+
+    public static ItemForItemRequestDto itemForItemRequestDtoFromItem(Item item) {
+        return ItemForItemRequestDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
+                .requestId(item.getRequest() == null ? null : item.getRequest().getId())
                 .build();
     }
 

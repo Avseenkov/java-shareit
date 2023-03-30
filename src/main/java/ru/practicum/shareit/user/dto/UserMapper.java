@@ -13,11 +13,11 @@ public class UserMapper {
     }
 
     public static UserDto userDtoFromUser(User user) {
-        return UserDto
-                .builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .build();
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setEmail(user.getEmail());
+        userDto.setName(user.getName());
+
+        return userDto;
     }
 }
