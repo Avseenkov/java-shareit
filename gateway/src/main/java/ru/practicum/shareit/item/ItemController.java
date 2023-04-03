@@ -21,15 +21,14 @@ public class ItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Object> createItem(@RequestHeader("X-Sharer-User-Id") Long id, @RequestBody @Valid ItemDto itemDto) {
+    public ResponseEntity<Object> createItem(@RequestHeader("X-Sharer-User-Id") long id, @RequestBody @Valid ItemDto itemDto) {
         return itemClient.createItem(id, itemDto);
     }
 
     @PatchMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> updateItem(@RequestHeader("X-Sharer-User-Id")
-                                             @NotNull
-                                             @Min(1) Long id,
+                                             @Min(1) long id,
                                              @PathVariable long itemId,
                                              @RequestBody ItemDto itemDto) {
         return itemClient.updateItem(id, itemId, itemDto);
@@ -38,8 +37,7 @@ public class ItemController {
     @GetMapping("{itemId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> getItem(@RequestHeader("X-Sharer-User-Id")
-                                          @NotNull
-                                          @Min(1) Long id,
+                                          @Min(1) long id,
                                           @PathVariable long itemId) {
         return itemClient.getItem(id, itemId);
     }
@@ -48,8 +46,7 @@ public class ItemController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> findItems(
             @RequestHeader("X-Sharer-User-Id")
-            @NotNull
-            @Min(1) Long id,
+            @Min(1) long id,
             @RequestParam String text,
             @RequestParam(defaultValue = "0") @Min(0) int from,
             @RequestParam(defaultValue = "100") @Min(0) int size
@@ -60,8 +57,7 @@ public class ItemController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> findAll(@RequestHeader("X-Sharer-User-Id")
-                                          @NotNull
-                                          @Min(1) Long id,
+                                          @Min(1) long id,
                                           @RequestParam(defaultValue = "0") @Min(0) int from,
                                           @RequestParam(defaultValue = "100") @Min(0) int size
     ) {
@@ -71,8 +67,7 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> createComment(@RequestHeader("X-Sharer-User-Id")
-                                                @NotNull
-                                                @Min(1) Long id,
+                                                @Min(1) long id,
                                                 @PathVariable long itemId, @Valid @RequestBody CommentDto commentDto
     ) {
         return itemClient.createComment(id, itemId, commentDto);
