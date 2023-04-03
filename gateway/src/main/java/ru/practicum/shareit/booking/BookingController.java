@@ -11,7 +11,6 @@ import ru.practicum.shareit.validation.OnCreate;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 @RestController
 @AllArgsConstructor
